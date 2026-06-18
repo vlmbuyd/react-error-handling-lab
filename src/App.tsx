@@ -3,6 +3,9 @@ import { StageV0 } from './stages/v0/StageV0';
 import { StageV1 } from './stages/v1/StageV1';
 import { StageV2 } from './stages/v2/StageV2';
 import { StageV3 } from './stages/v3/StageV3';
+import { StageUse } from './stages/use/StageUse';
+import { StageCache } from './stages/cache/StageCache';
+import { StageQuery } from './stages/query/StageQuery';
 
 type Capability = { label: string; state: 'ok' | 'partial' | 'fail' };
 
@@ -17,6 +20,7 @@ const STAGES = [
       { label: '비동기 에러 포착', state: 'partial' },
       { label: '이벤트 에러 포착', state: 'fail' },
       { label: '로딩 선언화', state: 'fail' },
+      { label: '캐시(참조 안정)', state: 'fail' },
     ] satisfies Capability[],
     Component: StageV0,
   },
@@ -30,6 +34,7 @@ const STAGES = [
       { label: '비동기 에러 포착', state: 'ok' },
       { label: '이벤트 에러 포착', state: 'fail' },
       { label: '로딩 선언화', state: 'fail' },
+      { label: '캐시(참조 안정)', state: 'fail' },
     ] satisfies Capability[],
     Component: StageV1,
   },
@@ -43,6 +48,7 @@ const STAGES = [
       { label: '비동기 에러 포착', state: 'ok' },
       { label: '이벤트 에러 포착', state: 'fail' },
       { label: '로딩 선언화', state: 'fail' },
+      { label: '캐시(참조 안정)', state: 'fail' },
     ] satisfies Capability[],
     Component: StageV2,
   },
@@ -56,8 +62,51 @@ const STAGES = [
       { label: '비동기 에러 포착', state: 'ok' },
       { label: '이벤트 에러 포착', state: 'fail' },
       { label: '로딩 선언화', state: 'ok' },
+      { label: '캐시(참조 안정)', state: 'fail' },
     ] satisfies Capability[],
     Component: StageV3,
+  },
+  {
+    id: 'use',
+    label: 'use',
+    title: 'use() — throw 패턴의 공식화',
+    description: 'createResource.read()의 세 갈래를 React 19 use() 한 줄이 흡수한다. 단, promise 참조는 여전히 사용자 몫.',
+    capabilities: [
+      { label: '렌더 에러 포착', state: 'ok' },
+      { label: '비동기 에러 포착', state: 'ok' },
+      { label: '이벤트 에러 포착', state: 'fail' },
+      { label: '로딩 선언화', state: 'ok' },
+      { label: '캐시(참조 안정)', state: 'fail' },
+    ] satisfies Capability[],
+    Component: StageUse,
+  },
+  {
+    id: 'cache',
+    label: 'cache',
+    title: '캐시 문제 — use만으론 부족한 이유',
+    description: 'promise를 render 안에서 만들면 매 렌더 새 참조 → 무한 suspend. 토글로 직접 터뜨려본다.',
+    capabilities: [
+      { label: '렌더 에러 포착', state: 'ok' },
+      { label: '비동기 에러 포착', state: 'ok' },
+      { label: '이벤트 에러 포착', state: 'fail' },
+      { label: '로딩 선언화', state: 'partial' },
+      { label: '캐시(참조 안정)', state: 'fail' },
+    ] satisfies Capability[],
+    Component: StageCache,
+  },
+  {
+    id: 'query',
+    label: 'query',
+    title: 'useSuspenseQuery — use는 인프라, RQ는 정책',
+    description: 'queryKey로 promise를 캐시해 참조를 안정화. 같은 throw 메커니즘 위에 캐시(정책)를 얹었다.',
+    capabilities: [
+      { label: '렌더 에러 포착', state: 'ok' },
+      { label: '비동기 에러 포착', state: 'ok' },
+      { label: '이벤트 에러 포착', state: 'fail' },
+      { label: '로딩 선언화', state: 'ok' },
+      { label: '캐시(참조 안정)', state: 'ok' },
+    ] satisfies Capability[],
+    Component: StageQuery,
   },
 ] as const;
 
