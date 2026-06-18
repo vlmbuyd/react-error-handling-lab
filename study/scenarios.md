@@ -36,6 +36,9 @@
 | v1     |      |      |      |
 | v2     |      |      |      |
 | v3     |      |      |      |
+| use    |      |      |      |
+| cache  |      |      |      |
+| query  |      |      |      |
 | v4     |      |      |      |
 
 > 시나리오 3은 좋은 함정이다: **ErrorBoundary로 감싸도 이벤트 핸들러의 throw는 안 잡힌다.**
@@ -55,6 +58,15 @@
   → v1의 "state에 담아 throw" 트릭을 Context+hook으로 캡슐화. 사용처는 `.catch(showBoundary)` 한 줄.
 - **v3** (`v3/createResource.ts`) — `read()`의 `throw promise`(pending) / `throw result`(error)
   → React에겐 **로딩도 에러도 똑같이 예외**. Promise를 throw하면 Suspense가, Error면 ErrorBoundary가 잡는다.
+- **use** (`use/UserProfileUse.tsx`) — `const user = use(userPromise)` 한 줄.
+  v3 `createResource.read()`의 switch 세 갈래를 React 19 `use()`가 흡수. promise는 여전히 바깥에서.
+  → "라이브러리만 알던 throw 트릭이 1급 API가 됐다." 단, 참조 안정성은 아직 사용자 몫.
+- **cache** (`cache/StageCache.tsx`) — 버티는 줄이 *깨지는 걸 보여주는* 단계.
+  `use(inline ? fetchUser() : stablePromise)` — inline=true면 매 렌더 새 promise → 무한 suspend.
+  → "use는 인프라일 뿐, '같은 데이터엔 같은 promise' 보장은 누가?" (= React Query를 부르는 동기)
+- **query** (`query/StageQuery.tsx`) — `useSuspenseQuery({ queryKey, queryFn })`.
+  queryKey로 promise를 캐시 → 참조 안정. 내부는 use와 같은 throw, 더한 건 **캐시(정책)**.
+  → **"use는 인프라, React Query는 그 위의 정책."** isLoading/isError 분기 없음(useQuery와 차이).
 - **v4** (`v4/AppV4.tsx`, 의사코드) — hook을 컴포넌트로: `<SuspenseQuery>{({data}) => ...}`,
   `ErrorBoundaryGroup`으로 묶어 한 번에 reset → 데이터 의존성을 **트리 구조 그 자체**로 표현.
 

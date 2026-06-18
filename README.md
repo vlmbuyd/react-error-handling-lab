@@ -30,9 +30,12 @@
 | **v1** | ErrorBoundary 직접 구현 | 비동기 에러를 state에 담아 **렌더에서 다시 throw**하는 트릭 |
 | **v2** | showBoundary 패턴 | v1의 트릭을 **Context + hook 한 줄**로 캡슐화 |
 | **v3** | Suspense + throw-promise | 로딩도 에러도 throw → **isLoading 분기가 사라짐** |
+| **use** | React 19 `use()` | `createResource.read()`의 세 갈래를 한 줄이 흡수. 단, 참조는 여전히 사용자 몫 |
+| **cache** | 캐시 문제 시각화 | render 안에서 promise를 만들면 매 렌더 새 참조 → 무한 suspend |
+| **query** | `useSuspenseQuery` | queryKey로 promise 캐시 → 참조 안정. **use는 인프라, RQ는 정책** |
 | **v4** | Suspensive 스타일 | hook을 컴포넌트로 → 데이터 의존성을 **트리 구조**로 표현 (의사코드) |
 
-각 단계는 브라우저 상단 탭(v0~v3)으로 전환하며 실행해볼 수 있다. (v4는 의사코드 읽기 자료)
+각 단계는 브라우저 상단 탭(v0~v3·use·cache·query)으로 전환하며 실행해볼 수 있다. (v4는 의사코드 읽기 자료)
 
 ## 학습 방식 — "읽고 끝"이 아니라 "부수고 복원"
 
@@ -74,7 +77,7 @@
 
 ```bash
 npm install
-npm run dev      # vite — 브라우저에서 v0~v3 탭 전환하며 실험
+npm run dev      # vite — 브라우저에서 v0~v3·use·cache·query 탭 전환하며 실험
 ```
 
 실패는 `src/stages/shared/fetchers.ts`의 URL에 쿼리를 붙이거나
