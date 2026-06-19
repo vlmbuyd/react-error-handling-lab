@@ -6,6 +6,7 @@ import { StageV3 } from './stages/v3/StageV3';
 import { StageUse } from './stages/use/StageUse';
 import { StageCache } from './stages/cache/StageCache';
 import { StageQuery } from './stages/query/StageQuery';
+import { StageV4 } from './stages/v4/StageV4';
 
 type Capability = { label: string; state: 'ok' | 'partial' | 'fail' };
 
@@ -107,6 +108,20 @@ const STAGES = [
       { label: '캐시(참조 안정)', state: 'ok' },
     ] satisfies Capability[],
     Component: StageQuery,
+  },
+  {
+    id: 'v4',
+    label: 'v4',
+    title: 'Suspensive — hook을 컴포넌트로',
+    description: 'useSuspenseQuery를 <SuspenseQuery>로, ErrorBoundary들을 그룹으로. 데이터 의존성을 트리 구조 그 자체로 표현한다.',
+    capabilities: [
+      { label: '렌더 에러 포착', state: 'ok' },
+      { label: '비동기 에러 포착', state: 'ok' },
+      { label: '이벤트 에러 포착', state: 'fail' },
+      { label: '로딩 선언화', state: 'ok' },
+      { label: '캐시(참조 안정)', state: 'ok' },
+    ] satisfies Capability[],
+    Component: StageV4,
   },
 ] as const;
 
